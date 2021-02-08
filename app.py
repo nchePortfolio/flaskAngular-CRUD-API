@@ -1,22 +1,7 @@
 #!flask/bin/python
-from flask import Flask, jsonify, redirect, url_for, abort, make_response, request
-
-
-members = [
-    {
-        'id': 1,
-        'first_name': 'Toto',
-        'last_name': 'Matic'
-    },
-    {
-        'id': 2,
-        'first_name': 'Joseph',
-        'last_name': 'Hicacement'
-    }
-]
-
-
-app = Flask(__name__)
+from settings import *
+from member import *
+from flask import redirect, url_for, abort, make_response
 
 
 @app.errorhandler(404)
@@ -31,55 +16,60 @@ def index():
 
 @app.route('/alifs/api/members', methods=['GET'])
 def get_members():
-    return jsonify({'members': members})
+    return jsonify({'members': Member.get_members()})
 
 
 @app.route('/alifs/api/members/<int:member_id>', methods=['GET'])
 def get_member(member_id):
-    member = [member for member in members if member['id'] == member_id]
-    if len(member) == 0:
+    member = Member.get_member(member_id)
+    if not member:
         abort(404)
-    return jsonify({'member': member[0]})
+    return jsonify({'member': Member.get_member(member_id)})
 
 
 @app.route('/alifs/api/members', methods=['POST'])
 def create_member():
-    if not request.json or not 'first_name' in request.json:
+    request_data = request.get_json()
+    if not request_data:
         abort(400)
-    member = {
-        'id': members[-1]['id'] + 1,
-        'first_name': request.json['first_name'],
-        'last_name': request.json['last_name'],
-    }
-    members.append(member)
-    return jsonify({'member': member}), 201
+    if 'first_name' not in request_data:
+        abort(400)
+    if 'last_name' not in request_data:
+        abort(400)
+
+    Member.add_member(
+        first_name=request_data['first_name'], 
+        last_name=request_data['last_name']
+    )
+
+    response = Response('Member created', 201, mimetype='application/json')
+
+    return response
 
 
 @app.route('/alifs/api/members/<int:member_id>', methods=['PUT'])
 def update_member(member_id):
-    member = [member for member in members if member['id'] == member_id]
-    if len(member) == 0:
-        abort(404)
-
     request_data = request.get_json()
     if not request_data:
         abort(400)
-    if 'first_name' in request_data and not isinstance(request_data['first_name'], str):
-        abort(400)
-    if 'last_name' in request_data and not isinstance(request_data['first_name'], str):
-        abort(400)
-    member[0]['first_name'] = request_data['first_name']
-    member[0]['last_name'] = request_data['last_name']
-    return  jsonify({'member': member[0]})
+
+    Member.update_member(
+        member_id, 
+        first_name=request_data['first_name'], 
+        last_name=request_data['last_name']
+    )
+
+    response = Response('Member updated', 201, mimetype='application/json')
+
+    return response
 
 
 @app.route('/alifs/api/members/<int:member_id>', methods=['DELETE'])
 def delete_member(member_id):
-    member = [member for member in members if member['id'] == member_id]
-    if len(member) == 0:
-        abort(404)
-    members.remove(member[0])
-    return jsonify({'result': True})
+    Member.delete_member(member_id)
+    response = Response('Member deleted', 201, mimetype='application/json')
+
+    return response
 
 
 if __name__ == '__main__':
