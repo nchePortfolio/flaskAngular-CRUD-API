@@ -16,8 +16,8 @@ def index():
 
 @app.route('/alifs/api/members', methods=['GET'])
 def get_members():
+    # return jsonify(Member.get_members())
     return jsonify({'members': Member.get_members()})
-
 
 @app.route('/alifs/api/members/<int:member_id>', methods=['GET'])
 def get_member(member_id):
