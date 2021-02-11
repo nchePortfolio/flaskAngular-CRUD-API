@@ -30,6 +30,7 @@ def get_member(member_id):
 @app.route('/alifs/api/members', methods=['POST'])
 def create_member():
     request_data = request.get_json()
+    print(request_data)
     if not request_data:
         abort(400)
     if 'first_name' not in request_data:
@@ -42,7 +43,7 @@ def create_member():
         last_name=request_data['last_name']
     )
 
-    response = Response('Member created', 201, mimetype='application/json')
+    response = Response({'status': 'Member created'}, 201, mimetype='application/json')
 
     return response
 
@@ -59,7 +60,7 @@ def update_member(member_id):
         last_name=request_data['last_name']
     )
 
-    response = Response('Member updated', 201, mimetype='application/json')
+    response = Response({'status': 'Member updated'}, 201, mimetype='application/json')
 
     return response
 
@@ -67,7 +68,7 @@ def update_member(member_id):
 @app.route('/alifs/api/members/<int:member_id>', methods=['DELETE'])
 def delete_member(member_id):
     Member.delete_member(member_id)
-    response = Response('Member deleted', 201, mimetype='application/json')
+    response = Response({'status': 'Member deleted'}, 201, mimetype='application/json')
 
     return response
 

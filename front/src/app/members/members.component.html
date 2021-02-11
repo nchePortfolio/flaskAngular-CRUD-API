@@ -1,0 +1,49 @@
+
+<div class="container">
+    <div style="text-align:center">
+      <h1>Members</h1>
+    </div>
+     
+    <table class="table" >
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+  
+      <tbody>
+        <tr *ngFor="let member of members">
+          <th scope="row">{{ member.id}}</th>
+          <td>{{ member.first_name}}</td>
+          <td>{{ member.last_name}}</td>
+          <td>
+            <div class="btn-toolbar" role="group" aria-label="Button group">
+              <button mat-icon-button>
+                <mat-icon (click)="onDetailMember(member.id)">view_list</mat-icon>
+              </button>
+
+              <button mat-icon-button>
+                <mat-icon (click)="onUpdateMember(member.id)">edit</mat-icon>
+              </button>
+              
+              <button mat-icon-button>
+                <mat-icon (click)="onDeleteMember(member.id)">delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <button class="btn btn-primary" style="margin-top: 10px;"
+        (click)="onFetch()">Importer</button>
+  
+        <button class="btn btn-primary" style="margin-top: 10px; margin-left: 10px;"
+        (click)="onNewMember()">Ajouter</button> 
+    </div>
+  
+  </div>

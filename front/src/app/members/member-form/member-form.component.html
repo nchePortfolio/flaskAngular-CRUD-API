@@ -1,0 +1,25 @@
+<div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+      <h2>Enregistrer un nouveau membre</h2>
+      <form [formGroup]="memberForm" (ngSubmit)="onAddMember()">
+        <div class="form-group">
+          <label for="first_name">Prénom</label>
+          <input type="text" id="first_name"
+                 class="form-control" formControlName="first_name">
+        </div>
+        <div class="form-group">
+            <label for="last_name">Nom</label>
+            <input type="text" id="last_name"
+                   class="form-control" formControlName="last_name">
+          </div>
+
+        <button *ngIf="isAddMode" class="btn btn-success" 
+              type="submit">Enregistrer
+        </button>
+        <button *ngIf="!isAddMode" class="btn btn-success" 
+              type="submit">Mettre à jour
+        </button>
+  
+      </form>
+    </div>
+  </div>
