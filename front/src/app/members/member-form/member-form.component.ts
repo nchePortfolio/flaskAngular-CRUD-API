@@ -40,8 +40,8 @@ export class MemberFormComponent implements OnInit {
         this.membersService.getMemberById(this.id)
             .subscribe(
               (x) => {
-                this.memberForm.patchValue(x['member'][0]);
-                console.log(x['member'][0])
+                this.memberForm.patchValue(x['member']);
+                console.log(x['member'])
               }
             );
     }

@@ -15,7 +15,8 @@ import { MemberDetailComponent } from './members/member-detail/member-detail.com
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationDialogService } from './confirmation-dialog/confirmation-dialog.service';
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HomeComponent } from './home/home.component'
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
     MemberFormComponent,
     MemberDetailComponent,
     ConfirmationDialogComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,

@@ -24,10 +24,10 @@ export class MembersApiService {
 
   getMembers() {
     this.http
-      .get<any[]>(`${API_URL}/alifs/api/members`)
+      .get<Member[]>(`${API_URL}/member/all`)
       .subscribe(
         (response) => {
-          this.members = response['members'];
+          this.members = response;
           console.log(this.members)
           this.emitMemberSubject();
         },
@@ -38,7 +38,7 @@ export class MembersApiService {
   }
 
   getMemberById(memberId) {
-    return this.http.get(`${API_URL}/alifs/api/members/${memberId}`)
+    return this.http.get(`${API_URL}/member/${memberId}`)
   }
 
   addMember(newMember: Member) {
@@ -58,7 +58,7 @@ export class MembersApiService {
   }
 
   updateMember(id, member) {
-    this.http.put(`${API_URL}/alifs/api/members/${id}`, member, {responseType: 'text'})
+    this.http.put(`${API_URL}/member/update/${id}`, member, {responseType: 'text'})
       .subscribe(
         () => {
           console.log('Mise à jour réussi !');
@@ -69,22 +69,10 @@ export class MembersApiService {
       );
   }
 
-  saveMembers() {
-    this.http
-      .post(`${API_URL}/alifs/api/members`, this.members)
-      .subscribe(
-        () => {
-          console.log('Enregistrement réussi !');
-        },
-        (error) => {
-          console.log('Erreur ! : ' + error);
-        }
-      );
-  }
 
   saveMember(member) {
     this.http
-      .post(`${API_URL}/alifs/api/members`, member, {responseType: 'text'})
+      .post(`${API_URL}/member/add`, member, {responseType: 'text'})
       .subscribe(
         () => {
           console.log('Enregistrement réussi !');
@@ -97,7 +85,7 @@ export class MembersApiService {
 
   deleteMember(member_id: number) {
     this.http
-      .delete(`${API_URL}/alifs/api/members/${member_id}`, {responseType: 'text'})
+      .delete(`${API_URL}/member/delete/${member_id}`, {responseType: 'text'})
       .subscribe(
         () => {
           console.log('Suppression réussie !');

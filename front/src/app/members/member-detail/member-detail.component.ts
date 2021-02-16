@@ -25,7 +25,7 @@ export class MemberDetailComponent implements OnInit {
 
     this.membersService.getMemberById(+id).subscribe(
       (response) => {
-        this.member = response['member'][0];
+        this.member = response['member'];
         console.log(this.member);
       },
       (error) => {
