@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, abort
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, abort, make_response
 )
 
 from main import db
@@ -33,7 +33,7 @@ def get_user(username):
 
 
 @bp.route('register', methods=['POST'])
-def add_user():
+def register_user():
     request_data = request.get_json()
     if not request_data:
         abort(400)
@@ -44,7 +44,10 @@ def add_user():
     if 'password' not in request_data:
         abort(400)
 
-    response = user_service.add_user(request_data)
+    if 'admin' not in request_data:
+        request_data['admin'] = False
+
+    response = user_service.register_user(request_data)
 
     return response
 
@@ -65,9 +68,35 @@ def log_user():
 
 @bp.route('/logout')
 def logout():
-    response = user_service.log_out()
+    auth_token = parse_auth_header(request)
+
+    response = user_service.logout(auth_token)
 
     return response
 
 
+@bp.route('/status', methods=['GET'])
+def user_status():
+    auth_token = parse_auth_header(request)
 
+    response = user_service.get_user_status(auth_token)
+
+    return response
+
+
+def parse_auth_header(request):
+    # get the auth token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        try:
+            auth_token = auth_header.split(" ")[1]
+        except:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Bearer token malformed.'
+            }
+            return make_response(jsonify(responseObject)), 401
+    else:
+        auth_token = ''
+
+    return auth_token

@@ -4,6 +4,7 @@ from flask import make_response, jsonify, session
 
 from main import db
 from main.models.user import User
+from main.models.token import BlacklistToken
 
 
 def serialize(model):
@@ -17,28 +18,41 @@ def serialize(model):
     }
 
 
-def add_user(data):
+def register_user(data):
     user = User.query.filter_by(email=data['email']).first()
     if not user:
-        new_user = User(
-            email=data['email'],
-            username=data['username'],
-            password=data['password_hash'],
-            admin=data['admin'],
-            registered_on=datetime.datetime.utcnow()
-        )
-        save_changes(new_user)
-        response_object = {
-            'status': 'success',
-            'message': 'Successfully registered.'
-        }
-        return make_response(jsonify(response_object), 201)
+        try:
+            new_user = User(
+                email=data['email'],
+                username=data['username'],
+                password=data['password'],
+                admin=data['admin'],
+                registered_on=datetime.datetime.utcnow()
+            )
+            save_changes(new_user)
+            auth_token = new_user.encode_auth_token(new_user.id)
+
+            response_object = {
+                'status': 'success',
+                'message': 'Successfully registered.',
+                'auth_token': auth_token
+            }
+
+            return make_response(jsonify(response_object), 201)
+
+        except Exception as e:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Some error occurred. Please try again.'
+            }
+            return make_response(jsonify(responseObject), 401)
     else:
         response_object = {
             'status': 'fail',
             'message': 'User already exists. Please Log in.',
         }
-        return make_response(jsonify(response_object), 409)
+
+        return make_response(jsonify(response_object), 202)
 
 
 def log_user(data):
@@ -52,7 +66,8 @@ def log_user(data):
 
     user = User.query.filter_by(username=data['username']).first()
     if user:
-        if user.check_password(data['password']):
+        auth_token = user.encode_auth_token(user.id)
+        if user.check_password(data['password']) and auth_token:
             session['logged_in'] = True
             session['username'] = data['username']
 
@@ -60,16 +75,17 @@ def log_user(data):
                 'response': {
                     'status': 'success',
                     'message': 'Successfully logged in.',
+                    'auth_token': auth_token
                 },
-                'status_code': 201
+                'status_code': 200
             }
         else:
             response_object = {
                 'response': {
                     'status': 'fail',
-                    'message': 'Fail to log in: incorrect password',
+                    'message': 'Fail to log in: incorrect password or invalid token',
                 },
-                'status_code': 400
+                'status_code': 202
             }
     else:
         response_object = {
@@ -77,10 +93,45 @@ def log_user(data):
                 'status': 'fail',
                 'message': 'Fail to log in: username {} does not exist'.format(data['username']),
             },
-            'status_code': 400
+            'status_code': 404
         }
 
     return make_response(jsonify(response_object['response']), response_object['status_code'])
+
+
+def logout(auth_token):
+    if auth_token:
+        resp = User.decode_auth_token(auth_token)
+        if not isinstance(resp, str):
+            # mark the token as blacklisted
+            blacklist_token = BlacklistToken(token=auth_token)
+            try:
+                # insert the token
+                db.session.add(blacklist_token)
+                db.session.commit()
+                responseObject = {
+                    'status': 'success',
+                    'message': 'Successfully logged out.'
+                }
+                return make_response(jsonify(responseObject)), 200
+            except Exception as e:
+                responseObject = {
+                    'status': 'fail',
+                    'message': e
+                }
+                return make_response(jsonify(responseObject)), 200
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': resp
+            }
+            return make_response(jsonify(responseObject)), 401
+    else:
+        responseObject = {
+            'status': 'fail',
+            'message': 'Provide a valid auth token.'
+        }
+        return make_response(jsonify(responseObject)), 403
 
 
 def log_out():
@@ -94,7 +145,7 @@ def log_out():
 
     session.clear()
 
-    return make_response(jsonify(response_object['response']), response_object['status_code'])    
+    return make_response(jsonify(response_object['response']), response_object['status_code'])
 
 
 def get_all_users():
@@ -104,30 +155,6 @@ def get_all_users():
 def get_user(username):
     user = User.query.filter_by(username=username).first()
     return serialize(user)
-
-
-def add_user(data):
-    user = User.query.filter_by(email=data['email']).first()
-    if not user:
-        new_user = User(
-            email=data['email'],
-            username=data['username'],
-            password=data['password_hash'],
-            admin=data['admin'],
-            registered_on=datetime.datetime.utcnow()
-        )
-        save_changes(new_user)
-        response_object = {
-            'status': 'success',
-            'message': 'Successfully registered.'
-        }
-        return make_response(jsonify(response_object), 201)
-    else:
-        response_object = {
-            'status': 'fail',
-            'message': 'User already exists. Please Log in.',
-        }
-        return make_response(jsonify(response_object), 409)
 
 
 def update_user(data):
@@ -197,6 +224,35 @@ def delete_user(id):
         }
 
     return make_response(jsonify(response_object['response']), response_object['status_code'])    
+
+
+def get_user_status(auth_token):
+    # get the auth token
+    if auth_token:
+        resp = User.decode_auth_token(auth_token)  # resp is user_id (from payload['sub'] in User model)
+        if not isinstance(resp, str):
+            user = User.query.filter_by(id=resp).first()
+            responseObject = {
+                'status': 'success',
+                'data': {
+                    'user_id': user.id,
+                    'email': user.email,
+                    'admin': user.admin,
+                    'registered_on': user.registered_on
+                }
+            }
+            return make_response(jsonify(responseObject)), 200
+        responseObject = {
+            'status': 'fail',
+            'message': resp
+        }
+        return make_response(jsonify(responseObject)), 401
+    else:
+        responseObject = {
+            'status': 'fail',
+            'message': 'Provide a valid auth token.'
+        }
+        return make_response(jsonify(responseObject)), 401
 
 
 def save_changes(model):

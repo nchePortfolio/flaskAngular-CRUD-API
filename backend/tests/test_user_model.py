@@ -1,5 +1,6 @@
 import unittest
 import datetime
+import time
 
 from main import db
 from main.models.user import User
@@ -22,71 +23,46 @@ class TestUserModel(BaseTestCase):
 
         return new_user
 
+
     def test_add_user(self):
         new_user = self.createUser()
         self.assertTrue(new_user == User.query.filter_by(username='tester').first())
+
 
     def test_check_password(self):
         new_user = self.createUser()
         self.assertTrue(new_user.check_password('12345'))
         self.assertFalse(new_user.check_password('123456'))
 
-    def test_login_success(self):
-        new_user = self.createUser()
 
-        with app.test_client() as client:
-            response = client.post(
-                '/alifs/api/auth/login',
-                json={'username': 'tester', 'password': '12345'}
-            )
+    def test_encode_auth_token(self):
+        user = self.createUser()
+        auth_token = user.encode_auth_token(user.id)
 
-            response_data = response.get_json()
-            self.assertEqual(response_data['status'], 'success')
-            self.assertEqual(session['logged_in'], True)
-            self.assertEqual(session['username'], 'tester')
+        self.assertTrue(isinstance(auth_token, str))
+        self.assertEqual(len(auth_token.split('.')), 3)
+        self.assertTrue(User.decode_auth_token(auth_token == 1))
 
-    def test_login_failure_wrong_password(self):
-        new_user = self.createUser()
+    def test_decode_auth_token_valid(self):
+        user = self.createUser()
+        auth_token = user.encode_auth_token(user.id)
 
-        with app.test_client() as client:
-            response = client.post(
-                '/alifs/api/auth/login',
-                json={'username': 'tester', 'password': 'abcde'}
-            )
+        self.assertTrue(User.decode_auth_token(auth_token) == user.id)
 
-            response_data = response.get_json()
-            self.assertEqual(response_data['status'], 'fail')
-            self.assertIn('incorrect password', response_data['message'])
-            self.assertTrue('logged_in' not in session)
 
-    def test_login_failure_wrong_username(self):
-        new_user = self.createUser()
+    def test_decode_auth_token_expired(self):
+        user = self.createUser()
+        auth_token = user.encode_auth_token(user.id)
+        time.sleep(3)
 
-        with app.test_client() as client:
-            response = client.post(
-                '/alifs/api/auth/login',
-                json={'username': 'notatester', 'password': '12345'}
-            )
+        self.assertIn('Signature expired', User.decode_auth_token(auth_token))
 
-            response_data = response.get_json()
-            self.assertEqual(response_data['status'], 'fail')
-            self.assertIn('notatester does not exist', response_data['message'])
-            self.assertTrue('logged_in' not in session)
 
-    def test_logout_success(self):
-        new_user = self.createUser()
+    def test_decode_auth_token_invalid(self):
+        user = self.createUser()
+        auth_token = user.encode_auth_token(user.id)
 
-        with app.test_client() as client:
-            response = client.post(
-                '/alifs/api/auth/login',
-                json={'username': 'tester', 'password': '12345'}
-            )
-
-            response_logout = client.get('/alifs/api/auth/logout')
-            response_data = response_logout.get_json()
-
-            self.assertTrue('logged_in' not in session)
-            self.assertIn('Successfully logged out', response_data['message'])
+        self.assertIn('Invalid token', User.decode_auth_token('bla.bla.bla'))     
 
 
 if __name__ == '__main__':

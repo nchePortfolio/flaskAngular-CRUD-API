@@ -13,7 +13,7 @@ from flask_script import Manager
 
 
 from main import create_app, db
-from main.models import user, member
+from main.models import user, member, token
 
 
 app = create_app(os.getenv('FLASK_ENV') or 'dev')

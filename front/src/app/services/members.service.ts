@@ -56,6 +56,7 @@ export class MembersApiService {
     this.members.push(memberObject);
     this.emitMemberSubject();
   }
+  
 
   updateMember(id, member) {
     this.http.put(`${API_URL}/member/update/${id}`, member, {responseType: 'text'})

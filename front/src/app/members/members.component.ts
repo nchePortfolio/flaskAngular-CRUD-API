@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
 import { Router } from '@angular/router';
 
-import {MembersApiService} from '../services/members.service';
+import { MembersApiService } from '../services/members.service';
 import { ConfirmationDialogService } from 'src/app/confirmation-dialog/confirmation-dialog.service';
 
 
