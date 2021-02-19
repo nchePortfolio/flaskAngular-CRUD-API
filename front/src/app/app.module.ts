@@ -14,9 +14,17 @@ import { MemberFormComponent } from './members/member-form/member-form.component
 import { MemberDetailComponent } from './members/member-detail/member-detail.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationDialogService } from './confirmation-dialog/confirmation-dialog.service';
+import { AuthService } from './services/auth.service';
+import { AuthGuard } from './services/auth-guard.service';
+import { LoginRedirect } from './services/login-redirect.service';
+
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HomeComponent } from './home/home.component'
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './auth/login/login.component';
+import { RegisterComponent } from './auth/register/register.component';
+import { StatusComponent } from './auth/status/status.component';
+import { LogoutComponent } from './auth/logout/logout.component'
 
 @NgModule({
   declarations: [
@@ -26,6 +34,10 @@ import { HomeComponent } from './home/home.component'
     MemberDetailComponent,
     ConfirmationDialogComponent,
     HomeComponent,
+    LoginComponent,
+    RegisterComponent,
+    StatusComponent,
+    LogoutComponent,
   ],
   imports: [
     BrowserModule,
@@ -36,7 +48,12 @@ import { HomeComponent } from './home/home.component'
     ReactiveFormsModule,
     NgbModule
   ],
-  providers: [MembersApiService, ConfirmationDialogService],
+  providers: [
+    MembersApiService,
+    ConfirmationDialogService,
+    AuthService,
+    AuthGuard
+  ],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

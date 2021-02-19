@@ -14,7 +14,6 @@ export class MembersApiService {
   membersSubject = new Subject<any[]>();
   members: Member[];
 
-
   constructor(private http: HttpClient) {
   }
 
