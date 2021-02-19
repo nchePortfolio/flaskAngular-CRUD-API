@@ -56,9 +56,9 @@ def register_user():
 def log_user():
     request_data = request.get_json()
 
-    if 'username' not in request_data:
+    if not request_data['username']:
         abort(400)
-    if 'password' not in request_data:
+    if not request_data['password']:
         abort(400)
 
     response = user_service.log_user(request_data)

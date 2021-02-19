@@ -31,6 +31,13 @@ export class LogoutComponent implements OnInit {
       .catch((err) => {
         console.log(err);
       });
+    } else {
+      setTimeout(() => {
+        this.router.navigate(['/alifs/home']);
+        this.auth.setTheBoolean(false);
+        this.auth.getTheBoolean().subscribe( val => {this.auth.isAuth = val});  
+      }, 2000);
+
     }
   }
 
