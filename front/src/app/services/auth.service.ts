@@ -16,13 +16,15 @@ export class AuthService {
 
   private headers = new HttpHeaders().set('content-type', 'application/json');
 
-  public isAuth: boolean;  
+  emailSubject = new Subject<string>();
+  email: string;
 
+  public isAuth: boolean;
   private theBoolean: BehaviorSubject<boolean>;
 
   constructor(private http: HttpClient) {
       this.theBoolean = new BehaviorSubject<boolean>(false);
-  }  
+    }  
 
   public getTheBoolean(): Observable<boolean> {
       return this.theBoolean.asObservable();
@@ -30,7 +32,11 @@ export class AuthService {
 
   public setTheBoolean(newValue: boolean): void {
     this.theBoolean.next(newValue);
-}
+  }
+
+  emitEmailSubject() {
+    this.emailSubject.next(this.email)
+  }
 
   login(user): Promise<any> {
     return this.http.post(`${API_URL}/auth/login`, user, { 'headers': this.headers }).toPromise();

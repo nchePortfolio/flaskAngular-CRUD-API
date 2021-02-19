@@ -237,6 +237,7 @@ def get_user_status(auth_token):
                 'data': {
                     'user_id': user.id,
                     'email': user.email,
+                    'username': user.username,
                     'admin': user.admin,
                     'registered_on': user.registered_on
                 }

@@ -22,9 +22,13 @@ export class LoginComponent implements OnInit {
   onLogin() {
     this.auth.login(this.user).then((user) => {
       localStorage.setItem('token', user.auth_token);
+
       this.auth.setTheBoolean(true);
       this.auth.getTheBoolean().subscribe( val => {this.auth.isAuth = val});
-        console.log(user)
+  
+      // this.auth.email = user
+
+      console.log(user);
       this.router.navigate(['/alifs/home'])
     })
     .catch((err) => {
