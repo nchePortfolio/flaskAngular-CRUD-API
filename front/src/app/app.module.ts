@@ -1,6 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {HttpClientModule} from '@angular/common/http';
+import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
@@ -16,15 +16,16 @@ import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirm
 import { ConfirmationDialogService } from './confirmation-dialog/confirmation-dialog.service';
 import { AuthService } from './services/auth.service';
 import { AuthGuard } from './services/auth-guard.service';
-import { LoginRedirect } from './services/login-redirect.service';
+import { ErrorInterceptor } from './services/error-interceptor';
+import { JwtInterceptor } from './services/jwt-interceptor';
 
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
-import { StatusComponent } from './auth/status/status.component';
-import { LogoutComponent } from './auth/logout/logout.component'
+// import { StatusComponent } from './auth/status/status.component';
+// import { LogoutComponent } from './auth/logout/logout.component'
 
 @NgModule({
   declarations: [
@@ -36,8 +37,8 @@ import { LogoutComponent } from './auth/logout/logout.component'
     HomeComponent,
     LoginComponent,
     RegisterComponent,
-    StatusComponent,
-    LogoutComponent,
+    // StatusComponent,
+    // LogoutComponent,
   ],
   imports: [
     BrowserModule,
@@ -52,7 +53,9 @@ import { LogoutComponent } from './auth/logout/logout.component'
     MembersApiService,
     ConfirmationDialogService,
     AuthService,
-    AuthGuard
+    AuthGuard,
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]

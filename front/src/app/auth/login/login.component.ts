@@ -1,39 +1,53 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../models/user.model';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { first } from 'rxjs/operators';
 
+import { AuthService } from 'src/app/services/auth.service';
 
-@Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
-})
-
+@Component({ templateUrl: 'login.component.html' })
 export class LoginComponent implements OnInit {
+    form: FormGroup;
+    loading = false;
+    submitted = false;
 
-  user: User = new User('', '', '');
+    constructor(
+        private formBuilder: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private authService: AuthService,
+    ) { }
 
-  constructor(private auth: AuthService, private router: Router) {}
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            username: ['', Validators.required],
+            password: ['', Validators.required]
+        });
+    }
 
-  ngOnInit(): void {
-  }
+    // convenience getter for easy access to form fields
+    get f() { return this.form.controls; }
 
-  onLogin() {
-    this.auth.login(this.user).then((response) => {
-      if (response.status === "success") {
-        localStorage.setItem('token', response.auth_token);
+    onSubmit() {
+        this.submitted = true;
 
-        this.auth.setTheBoolean(true);
-        this.auth.getTheBoolean().subscribe( val => {this.auth.isAuth = val});
-    
-        this.router.navigate(['/alifs/home'])
+        // stop here if form is invalid
+        if (this.form.invalid) {
+            return;
         }
-        console.log(response);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
 
+        this.loading = true;
+        this.authService.login(this.f.username.value, this.f.password.value)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    // get return url from query parameters or default to home page
+                    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+                    this.router.navigateByUrl(returnUrl);
+                },
+                error: error => {
+                    this.loading = false;
+                }
+            });
+    }
 }

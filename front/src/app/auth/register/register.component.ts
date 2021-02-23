@@ -1,35 +1,53 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../models/user.model';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { first } from 'rxjs/operators';
 
+import { AuthService } from 'src/app/services/auth.service';
 
-
-@Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
-})
-
+@Component({ templateUrl: 'register.component.html' })
 export class RegisterComponent implements OnInit {
+    form: FormGroup;
+    loading = false;
+    submitted = false;
 
-  user: User = new User('', '', '');
+    constructor(
+        private formBuilder: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private authService: AuthService,
+    ) { }
 
-  constructor(private auth: AuthService, private router: Router) {}
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            username: ['', Validators.required],
+            email: ['', Validators.required],
+            password: ['', [Validators.required, Validators.minLength(6)]]
+        });
+    }
 
-  ngOnInit(): void {
-  }
+    // convenience getter for easy access to form fields
+    get f() { return this.form.controls; }
 
-  onRegister() {
-    console.log(this.user);
-    this.auth.register(this.user).then((user) => {
-      localStorage.setItem('token', user.auth_token);
-      this.auth.isAuth = true;
-      this.router.navigate(['/alifs/home'])
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+    onSubmit() {
+        this.submitted = true;
 
+        // stop here if form is invalid
+        if (this.form.invalid) {
+            return;
+        }
+
+        this.loading = true;
+        this.authService.register(this.form.value)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    this.router.navigate(['alifs/login'], { relativeTo: this.route });
+                },
+                error: error => {
+                  console.log(error);
+                  this.loading = false;
+                }
+            });
+    }
 }

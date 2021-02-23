@@ -10,7 +10,6 @@ import { LogoutComponent } from './auth/logout/logout.component'
 import { StatusComponent } from './auth/status/status.component'
 
 import { AuthGuard } from './services/auth-guard.service';
-import { LoginRedirect } from './services/login-redirect.service';
 
 
 const routes: Routes = [
@@ -18,11 +17,11 @@ const routes: Routes = [
   { path: 'alifs/members/new', canActivate: [AuthGuard], component: MemberFormComponent },
   { path: 'alifs/members/edit/:id', canActivate: [AuthGuard], component: MemberFormComponent },
   { path: 'alifs/members/detail/:id', canActivate: [AuthGuard], component: MemberDetailComponent },
-  { path: 'alifs/home', component: HomeComponent },
+  { path: 'alifs/home', canActivate: [AuthGuard], component: HomeComponent },
   { path: 'alifs/login', component: LoginComponent },
-  { path: 'alifs/logout', component: LogoutComponent },
+  // { path: 'alifs/logout', component: LogoutComponent },
   { path: 'alifs/register', component: RegisterComponent },
-  { path: 'alifs/status', component: StatusComponent },
+  // { path: 'alifs/status', component: StatusComponent },
   { path: '', redirectTo: 'alifs/home', pathMatch: 'full' },
   { path: '**', redirectTo: 'alifs/home' }
 ];

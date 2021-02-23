@@ -67,15 +67,38 @@ def log_user(data):
     user = User.query.filter_by(username=data['username']).first()
     if user:
         auth_token = user.encode_auth_token(user.id)
+
+        if not auth_token:
+            response_object = {
+                'response': {
+                    'status': 'fail',
+                    'message': 'Fail to log in: invalid token',
+                },
+                'status_code': 202
+            }
+            return make_response(jsonify(response_object['response']), response_object['status_code'])
+
+        if not user.check_password(data['password']):
+            response_object = {
+                'response': {
+                    'status': 'fail',
+                    'message': 'Fail to log in: incorrect password',
+                },
+                'status_code': 202
+            }
+            return make_response(jsonify(response_object['response']), response_object['status_code'])
+
         if user.check_password(data['password']) and auth_token:
-            session['logged_in'] = True
-            session['username'] = data['username']
+            session['is_auth'] = True
+            print(session)
+            user_details = serialize(user)
+            user_details['token'] = auth_token
 
             response_object = {
                 'response': {
                     'status': 'success',
                     'message': 'Successfully logged in.',
-                    'auth_token': auth_token
+                    'user': user_details,
                 },
                 'status_code': 200
             }
@@ -83,7 +106,7 @@ def log_user(data):
             response_object = {
                 'response': {
                     'status': 'fail',
-                    'message': 'Fail to log in: incorrect password or invalid token',
+                    'message': 'Fail to log in: unknown error',
                 },
                 'status_code': 202
             }
@@ -109,6 +132,7 @@ def logout(auth_token):
                 # insert the token
                 db.session.add(blacklist_token)
                 db.session.commit()
+                session.pop('is_auth', None)
                 responseObject = {
                     'status': 'success',
                     'message': 'Successfully logged out.'

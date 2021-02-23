@@ -1,7 +1,9 @@
 export class User {
-    constructor(
-        public username: string,
-        public email: string,
-        public password: string
-    ) { }
+    id: number;
+    username: string;
+    password: string;
+    email: string;
+    isAdmin: boolean;
+    registeredOn: Date;
+    token?: string;
 }

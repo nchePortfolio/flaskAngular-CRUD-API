@@ -1,65 +1,49 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import {API_URL} from 'src/app/env';
+import { map } from 'rxjs/operators';
+
 import { User } from '../models/user.model';
 
 
-import 'rxjs/add/operator/toPromise';
-
-import {API_URL} from 'src/app/env';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-
-
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private headers = new HttpHeaders().set('content-type', 'application/json');
+    private currentUserSubject: BehaviorSubject<User>;
+    public currentUser: Observable<User>;
 
-  emailSubject = new Subject<string>();
-  email: string;
+    constructor(private http: HttpClient) {
+        this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
+        this.currentUser = this.currentUserSubject.asObservable();
+    }
 
-  public isAuth: boolean;
-  private theBoolean: BehaviorSubject<boolean>;
+    public get currentUserValue(): User {
+        return this.currentUserSubject.value;
+    }
 
-  constructor(private http: HttpClient) {
-      this.theBoolean = new BehaviorSubject<boolean>(false);
-    }  
-
-  public getTheBoolean(): Observable<boolean> {
-      return this.theBoolean.asObservable();
+  login(username: string, password: string) {
+    return this.http.post<any>(`${API_URL}/auth/login`, { username, password })
+        .pipe(map(response => {
+          if (response.status === 'success') {
+            // store user details and jwt token in local storage to keep user logged in between page refreshes
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
+            this.currentUserSubject.next(response.user);
+            return response.user;
+          }
+        }));
   }
 
-  public setTheBoolean(newValue: boolean): void {
-    this.theBoolean.next(newValue);
+  register(user: User){
+    return this.http.post(`${API_URL}/auth/register`, user);
   }
 
-  emitEmailSubject() {
-    this.emailSubject.next(this.email)
-  }
+  logout() {
+    // remove user from local storage to log user out
+    localStorage.removeItem('currentUser');
+    this.currentUserSubject.next(null);
 
-  login(user): Promise<any> {
-    return this.http.post(`${API_URL}/auth/login`, user, { 'headers': this.headers }).toPromise();
-  }
-
-  register(user: User): Promise<any> {
-    return this.http.post(`${API_URL}/auth/register`, user, { 'headers': this.headers }).toPromise();
-  }
-
-  logout(token): Promise<any> {
-    let headers= new HttpHeaders()
-    .set('content-type', 'application/json')
-    .set('Authorization', `Bearer ${token}`);
-
-    return this.http.get(`${API_URL}/auth/logout`, {headers: headers}).toPromise();
-  }
-
-  ensureAuthenticated(token): Promise<any> {
-    let headers= new HttpHeaders()
-    .set('content-type', 'application/json')
-    .set('Authorization', `Bearer ${token}`);
-
-    return this.http.get(`${API_URL}/auth/status`, {headers: headers}).toPromise();
+    return this.http.get(`${API_URL}/auth/logout`);
   }
   
 

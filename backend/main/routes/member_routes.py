@@ -10,13 +10,17 @@ bp = Blueprint('member', __name__, url_prefix='/alifs/api/member')
 
 
 @bp.before_app_request
-def load_logged_in_user():
-    username = session.get('username')
+def auth_user():
+    is_auth = session.get('is_auth')
+    print(session)
+    # if not is_auth:
+    #     abort(404)
+    # username = session.get('username')
 
-    if username is None:
-        g.user = None
-    else:
-        g.user = User.query.filter_by(username=username).first()
+    # if username is None:
+    #     g.user = None
+    # else:
+    #     g.user = User.query.filter_by(username=username).first()
 
 
 @bp.route('/all', methods=['GET'])

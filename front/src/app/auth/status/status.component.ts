@@ -8,25 +8,9 @@ import { AuthService } from '../../services/auth.service';
 })
 
 export class StatusComponent implements OnInit {
-
-  isLoggedIn: boolean = false;
-
-  constructor(private auth: AuthService) {}
-
+  
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.auth.ensureAuthenticated(token)
-      .then((user) => {
-        console.log(user);
-        if (user.status === 'success') {
-          this.isLoggedIn = true;
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    }
+    throw new Error('Method not implemented.');
   }
 
 }
