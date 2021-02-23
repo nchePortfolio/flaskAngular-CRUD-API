@@ -7,7 +7,6 @@ import { HomeComponent } from './home/home.component'
 import { LoginComponent } from './auth/login/login.component'
 import { RegisterComponent } from './auth/register/register.component'
 import { LogoutComponent } from './auth/logout/logout.component'
-import { StatusComponent } from './auth/status/status.component'
 
 import { AuthGuard } from './services/auth-guard.service';
 
@@ -21,7 +20,6 @@ const routes: Routes = [
   { path: 'alifs/login', component: LoginComponent },
   // { path: 'alifs/logout', component: LogoutComponent },
   { path: 'alifs/register', component: RegisterComponent },
-  // { path: 'alifs/status', component: StatusComponent },
   { path: '', redirectTo: 'alifs/home', pathMatch: 'full' },
   { path: '**', redirectTo: 'alifs/home' }
 ];
