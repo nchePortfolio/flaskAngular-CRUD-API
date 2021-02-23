@@ -13,7 +13,7 @@ def serialize(model):
 
 
 def get_all_members():
-    return [serialize(member) for member in Member.query.all()]
+    return sorted([serialize(member) for member in Member.query.all()], key=lambda x: x['id'])
 
 
 def get_member(id):

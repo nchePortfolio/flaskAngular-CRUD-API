@@ -9,18 +9,10 @@ from main.models.user import User
 bp = Blueprint('member', __name__, url_prefix='/alifs/api/member')
 
 
-@bp.before_app_request
-def auth_user():
-    is_auth = session.get('is_auth')
-    print(session)
-    # if not is_auth:
-    #     abort(404)
-    # username = session.get('username')
-
-    # if username is None:
-    #     g.user = None
-    # else:
-    #     g.user = User.query.filter_by(username=username).first()
+# @bp.before_app_request
+# def auth_user():
+#     is_auth = session.get('is_auth')
+    # print(session)
 
 
 @bp.route('/all', methods=['GET'])

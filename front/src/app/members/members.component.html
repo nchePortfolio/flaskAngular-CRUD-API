@@ -4,46 +4,69 @@
       <h1>Members</h1>
     </div>
      
-    <table class="table table-hover table-sm" >
-      <thead class="table-dark">
+    <table mat-table [dataSource]="members" class="mat-elevation-z8 table-hover">
+
+      <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->
+    
+      <!-- Position Column -->
+      <ng-container matColumnDef="id">
+        <th class="table-dark" mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let member"> {{member.id}} </td>
+      </ng-container>
+    
+      <!-- Name Column -->
+      <ng-container matColumnDef="first_name">
+        <th class="table-dark" mat-header-cell *matHeaderCellDef> First name </th>
+        <td mat-cell *matCellDef="let member"> {{member.first_name}} </td>
+      </ng-container>
+    
+      <!-- Weight Column -->
+      <ng-container matColumnDef="last_name">
+        <th class="table-dark" mat-header-cell *matHeaderCellDef> Last name </th>
+        <td mat-cell *matCellDef="let member"> {{member.last_name}} </td>
+      </ng-container>
+    
+      <!-- Name Column -->
+      <ng-container matColumnDef="actions">
+        <th class="table-dark" mat-header-cell *matHeaderCellDef> Actions </th>
+  
+            <td mat-cell *matCellDef="let member">
+              <div class="btn-toolbar" role="group" aria-label="Button group">
+                <button mat-icon-button>
+                  <mat-icon (click)="onDetailMember(member.id)">view_list</mat-icon>
+                </button>
+  
+                <button mat-icon-button>
+                  <mat-icon (click)="onUpdateMember(member.id)">edit</mat-icon>
+                </button>
+                
+                <button mat-icon-button>
+                  <mat-icon (click)="onDeleteMember(member.id)">delete</mat-icon>
+                </button>
+              </div>
+            </td>
+  
+      </ng-container>
+    
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tfoot>
         <tr>
-          <th>ID</th>
-          <th>First name</th>
-          <th>Last name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-  
-      <tbody>
-        <tr *ngFor="let member of members">
-          <th scope="row">{{ member.id}}</th>
-          <td>{{ member.first_name}}</td>
-          <td>{{ member.last_name}}</td>
-          <td>
-            <div class="btn-toolbar" role="group" aria-label="Button group">
-              <button mat-icon-button>
-                <mat-icon (click)="onDetailMember(member.id)">view_list</mat-icon>
-              </button>
+          <div>
+            <button class="btn btn-primary" style="margin-top: 10px;"
+            (click)="onFetch()">Importer</button>
+      
+            <button class="btn btn-primary" style="margin-top: 10px; margin-left: 10px;"
+            (click)="onNewMember()">Ajouter</button> 
+        </div>
+            </tr>
+    </tfoot>
 
-              <button mat-icon-button>
-                <mat-icon (click)="onUpdateMember(member.id)">edit</mat-icon>
-              </button>
-              
-              <button mat-icon-button>
-                <mat-icon (click)="onDeleteMember(member.id)">delete</mat-icon>
-              </button>
-            </div>
-          </td>
-        </tr>
-        </tbody>
     </table>
+  
+  
 
-    <div>
-        <button class="btn btn-primary" style="margin-top: 10px;"
-        (click)="onFetch()">Importer</button>
   
-        <button class="btn btn-primary" style="margin-top: 10px; margin-left: 10px;"
-        (click)="onNewMember()">Ajouter</button> 
-    </div>
-  
-  </div>
+</div>

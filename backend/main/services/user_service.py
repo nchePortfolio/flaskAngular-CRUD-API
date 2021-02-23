@@ -67,30 +67,10 @@ def log_user(data):
     user = User.query.filter_by(username=data['username']).first()
     if user:
         auth_token = user.encode_auth_token(user.id)
+        is_password_ok = user.check_password(data['password'])
 
-        if not auth_token:
-            response_object = {
-                'response': {
-                    'status': 'fail',
-                    'message': 'Fail to log in: invalid token',
-                },
-                'status_code': 202
-            }
-            return make_response(jsonify(response_object['response']), response_object['status_code'])
-
-        if not user.check_password(data['password']):
-            response_object = {
-                'response': {
-                    'status': 'fail',
-                    'message': 'Fail to log in: incorrect password',
-                },
-                'status_code': 202
-            }
-            return make_response(jsonify(response_object['response']), response_object['status_code'])
-
-        if user.check_password(data['password']) and auth_token:
+        if is_password_ok and auth_token:
             session['is_auth'] = True
-            print(session)
             user_details = serialize(user)
             user_details['token'] = auth_token
 
@@ -103,13 +83,34 @@ def log_user(data):
                 'status_code': 200
             }
         else:
-            response_object = {
-                'response': {
-                    'status': 'fail',
-                    'message': 'Fail to log in: unknown error',
-                },
-                'status_code': 202
-            }
+            if not auth_token:
+                print('*** wrong token ***')
+                response_object = {
+                    'response': {
+                        'status': 'fail',
+                        'message': 'Fail to log in: invalid token',
+                    },
+                    'status_code': 202
+                }
+
+            elif not is_password_ok:
+                print('*** wrong password ***')
+                response_object = {
+                    'response': {
+                        'status': 'fail',
+                        'message': 'Fail to log in: incorrect password',
+                    },
+                    'status_code': 202
+                }
+            else:
+                print('*** unknown error ***')
+                response_object = {
+                    'response': {
+                        'status': 'fail',
+                        'message': 'Fail to log in: unknown error',
+                    },
+                    'status_code': 202
+                }
     else:
         response_object = {
             'response': {

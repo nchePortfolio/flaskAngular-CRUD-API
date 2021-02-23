@@ -17,6 +17,8 @@ export class MembersComponent implements OnInit, OnDestroy {
   title = 'alifs-app';
   membersSubscription: Subscription = new Subscription();  
   members: any[];
+  displayedColumns: string[] = ['id', 'first_name', 'last_name', 'actions'];
+
   private isFetched: boolean = false;
 
   constructor(
