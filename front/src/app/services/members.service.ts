@@ -27,7 +27,6 @@ export class MembersApiService {
       .subscribe(
         (response) => {
           this.members = response;
-          console.log(this.members)
           this.emitMemberSubject();
         },
         (error) => {
@@ -102,7 +101,6 @@ export class MembersApiService {
         }
       }
     );
-    // console.log(memberIndexToRemove, member_id)
 
     this.members.splice(memberIndexToRemove, 1);
     this.emitMemberSubject();  

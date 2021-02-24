@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
 import { Router } from '@angular/router';
 
 import { MembersApiService } from '../services/members.service';
 import { ConfirmationDialogService } from 'src/app/confirmation-dialog/confirmation-dialog.service';
+import { Member } from '../models/member.model';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
 
 @Component({
@@ -12,14 +15,25 @@ import { ConfirmationDialogService } from 'src/app/confirmation-dialog/confirmat
   styleUrls: ['./members.component.css']
 })
 
-export class MembersComponent implements OnInit, OnDestroy {
+export class MembersComponent implements OnInit, OnDestroy, AfterViewInit {
 
   title = 'alifs-app';
+
   membersSubscription: Subscription = new Subscription();  
-  members: any[];
+  members: Member[];
+  dataSource: MatTableDataSource<Member>;
+
   displayedColumns: string[] = ['id', 'first_name', 'last_name', 'actions'];
 
   private isFetched: boolean = false;
+
+
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+
+  ngAfterViewInit() {
+    // setTimeout(() => this.dataSource.paginator = this.paginator);
+    console.log(this.paginator)
+  }
 
   constructor(
     private membersApi: MembersApiService,
@@ -31,8 +45,11 @@ export class MembersComponent implements OnInit, OnDestroy {
     this.membersSubscription = this.membersApi.membersSubject.subscribe(
       (members: any[]) => {
         this.members = members;
+        this.dataSource = new MatTableDataSource<Member>(members);
+        this.dataSource.paginator = this.paginator;
       }
     );
+    
     this.membersApi.emitMemberSubject();
     if (this.isFetched === false) {
       this.onFetch();
@@ -59,10 +76,6 @@ export class MembersComponent implements OnInit, OnDestroy {
   onUpdateMember(member_id) {
     this.router.navigate(['/alifs/members', 'edit', member_id]);
   }
-
-  // onDeleteMember(member_id) {
-  //   this.membersApi.deleteMember(member_id);
-  // }
 
 
   onDeleteMember(member_id) {

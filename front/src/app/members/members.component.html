@@ -1,38 +1,37 @@
-
 <div class="container">
     <div style="text-align:center">
       <h1>Members</h1>
     </div>
      
-    <table mat-table [dataSource]="members" class="mat-elevation-z8 table-hover">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
       <!--- Note that these columns can be defined in any order.
             The actual rendered columns are set as a property on the row definition" -->
     
-      <!-- Position Column -->
+      <!-- id Column -->
       <ng-container matColumnDef="id">
         <th class="table-dark" mat-header-cell *matHeaderCellDef> ID </th>
         <td mat-cell *matCellDef="let member"> {{member.id}} </td>
       </ng-container>
     
-      <!-- Name Column -->
+      <!-- first_name Column -->
       <ng-container matColumnDef="first_name">
         <th class="table-dark" mat-header-cell *matHeaderCellDef> First name </th>
         <td mat-cell *matCellDef="let member"> {{member.first_name}} </td>
       </ng-container>
     
-      <!-- Weight Column -->
+      <!-- last_name Column -->
       <ng-container matColumnDef="last_name">
         <th class="table-dark" mat-header-cell *matHeaderCellDef> Last name </th>
         <td mat-cell *matCellDef="let member"> {{member.last_name}} </td>
       </ng-container>
     
-      <!-- Name Column -->
+      <!-- Actions Column -->
       <ng-container matColumnDef="actions">
         <th class="table-dark" mat-header-cell *matHeaderCellDef> Actions </th>
   
             <td mat-cell *matCellDef="let member">
-              <div class="btn-toolbar" role="group" aria-label="Button group">
+              <div class="btn-toolbar" role="group" aria-label="Button group" class="btn-actions">
                 <button mat-icon-button>
                   <mat-icon (click)="onDetailMember(member.id)">view_list</mat-icon>
                 </button>
@@ -45,28 +44,32 @@
                   <mat-icon (click)="onDeleteMember(member.id)">delete</mat-icon>
                 </button>
               </div>
-            </td>
-  
+            </td>  
       </ng-container>
     
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-      <tfoot>
-        <tr>
-          <div>
-            <button class="btn btn-primary" style="margin-top: 10px;"
-            (click)="onFetch()">Importer</button>
-      
-            <button class="btn btn-primary" style="margin-top: 10px; margin-left: 10px;"
-            (click)="onNewMember()">Ajouter</button> 
-        </div>
-            </tr>
-    </tfoot>
+      <!-- <mat-paginator [pageSizeOptions]="[3, 5, 10, 20]" showFirstLastButtons></mat-paginator> -->
 
-    </table>
+  </table>
+
+  <mat-paginator 
+  [length]="dataSource.data.length"
+  [pageSize]="5"
+  [pageSizeOptions]="[5, 10, 15]"
+  [showFirstLastButtons]="true">
+</mat-paginator>
+
   
-  
+  <div class="btn-outtable">
+    <button class="btn btn-primary" style="margin-top: 10px;"
+    (click)="onFetch()">Importer</button>
+
+    <button class="btn btn-primary" style="margin-top: 10px; margin-left: 10px;"
+    (click)="onNewMember()">Ajouter</button> 
+  </div>
+
 
   
 </div>
